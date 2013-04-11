@@ -1,0 +1,23 @@
+#loggedout {
+    text-align: center;
+    font-size: 20px;
+    padding-top: 30px;
+}
+#header {
+    padding: 4px;
+    border-bottom: 1px solid #000;
+    background: #eee;
+}
+
+.card { 
+    display: block; 
+    padding: 2px;
+}
+
+#boards {
+	width: 300px;
+}
+
+.loading *{
+	display: none;
+}

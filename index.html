@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>Trello</title>
+		<meta charset='utf-8'>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="style.css" rel="stylesheet" media="screen">
+	</head>
+	<body class="loading">
+		<div class="container">
+			<!-- ko ifnot: authenticated -->
+			<div id="loggedout">
+				<a id="connectLink" href="#" data-bind="click: login">Connect To Trello</a>
+			</div>
+			<!-- /ko -->
+
+			<!-- ko if: authenticated -->
+			<div id="loggedin">
+				<div id="header">
+					Logged in to as <span id="fullName"></span> 
+					<a id="disconnect" href="#" data-bind="click: logout">Log Out</a>
+				</div>
+				
+				<div id="output">
+					<select id="boards" data-bind="options: boards, optionsText: 'name', value: selectedBoard, optionsCaption: 'Choisir un board...'">
+					</select> 
+					<!-- ko with: selectedBoard -->
+					<a href="#" data-bind="click:updateLists"><i class="icon-refresh"></i></a>
+					<table class="table table-condensed">
+					<thead>
+						<tr><th colspan="2">Liste / Carte</th><th>Coût</th><th>#</th></tr>
+					</thead>
+					<!-- ko if: loading -->
+						<tbody><tr><td colspan="4">Loading...</td></tr></tbody>
+					<!-- /ko -->
+					<!-- ko ifnot: loading -->
+						<!-- ko foreach: boardLists -->
+							<tbody>
+							<tr>
+								<th colspan="2"><span data-bind="text:name"></span></th><th><span data-bind="text:total"></span></th><th><span data-bind="text:nbCards"></span> carte(s)</th>
+							</tr>
+							<!-- ko if: cardsLoading -->
+								<tr><td colspan="4">Loading...</td></tr>
+							<!-- /ko -->
+							<!-- ko ifnot: cardsLoading -->
+								<!-- ko foreach: cards -->
+								<tr>
+									<td></td>
+									<td><span data-bind="text:name"></span></td>
+									<td><span data-bind="text:getCost()"></span></td>
+									<td></td>
+								</tr>
+								<!-- /ko -->
+							<!-- /ko -->
+							</tbody>
+						<!-- /ko -->
+					<!-- /ko -->
+					</table>
+					<!-- /ko -->
+				</div>
+			</div>
+			<!-- /ko -->
+
+		</div>
+		<script src="http://code.jquery.com/jquery.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+		<script src="https://api.trello.com/1/client.js?key=fa55c46b1c5d9fc3f0aaee5b80a0177f"></script>
+		<script src="app.js"></script>
+	</body>
+</html>
