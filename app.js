@@ -10,6 +10,12 @@ var cardModel = function (card) {
 		}
 		return parseInt(label);
 	};
+	self.dueDate = function() {
+		if (!self.due) {
+			return "";
+		}
+		return new Date(self.due).toDateString();
+	};
 };
 
 var listModel = function (list) {
@@ -59,9 +65,13 @@ var viewModel = function() {
 	self.selectedBoard = ko.observable() ;
 	
 	self.authenticated = ko.observable(false);
+	self.user = ko.observable();
 
 	self.onAuthorize = function() {
 		self.authenticated(Trello.authorized());
+		Trello.get("member/me", function (member) {
+			self.user(member.username);
+		});
 		self.loadBoards();
 	};
 	

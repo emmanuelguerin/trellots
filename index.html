@@ -18,7 +18,7 @@
 			<!-- ko if: authenticated -->
 			<div id="loggedin">
 				<div id="header">
-					Logged in to as <span id="fullName"></span> 
+					Logged in to as <span data-bind="text:user"></span> 
 					<a id="disconnect" href="#" data-bind="click: logout">Log Out</a>
 				</div>
 				
@@ -29,19 +29,30 @@
 					<a href="#" data-bind="click:updateLists"><i class="icon-refresh"></i></a>
 					<table class="table table-condensed">
 					<thead>
-						<tr><th colspan="2">Liste / Carte</th><th>Coût</th><th>#</th></tr>
+						<tr>
+							<th colspan="2">Liste / Carte</th>
+							<th>Coût</th>
+							<th>#</th>
+							<th>Fin</th>
+						</tr>
 					</thead>
 					<!-- ko if: loading -->
-						<tbody><tr><td colspan="4">Loading...</td></tr></tbody>
+						<tbody>
+							<tr>
+								<td colspan="5">Loading...</td>
+							</tr>
+						</tbody>
 					<!-- /ko -->
 					<!-- ko ifnot: loading -->
 						<!-- ko foreach: boardLists -->
 							<tbody>
-							<tr>
-								<th colspan="2"><span data-bind="text:name"></span></th><th><span data-bind="text:total"></span></th><th><span data-bind="text:nbCards"></span> carte(s)</th>
-							</tr>
+								<tr>
+									<th colspan="2"><span data-bind="text:name"></span></th>
+									<th><span data-bind="text:total"></span></th>
+									<th colspan="2"><span data-bind="text:nbCards"></span> carte(s)</th>
+								</tr>
 							<!-- ko if: cardsLoading -->
-								<tr><td colspan="4">Loading...</td></tr>
+								<tr><td colspan="5">Loading...</td></tr>
 							<!-- /ko -->
 							<!-- ko ifnot: cardsLoading -->
 								<!-- ko foreach: cards -->
@@ -50,6 +61,7 @@
 									<td><span data-bind="text:name"></span></td>
 									<td><span data-bind="text:getCost()"></span></td>
 									<td></td>
+									<td><span data-bind="text:dueDate()"></span></td>
 								</tr>
 								<!-- /ko -->
 							<!-- /ko -->
