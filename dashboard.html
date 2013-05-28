@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>Trello</title>
+		<meta charset='utf-8'>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="style.css" rel="stylesheet" media="screen">
+		<style>
+			.item {
+				height: 600px;
+			}
+			.initials {
+				height: 170px;
+				width: 170px;
+				font-size: 100px;
+				line-height: 170px;
+			}
+			.cardName {
+				font-size: 30px;
+				margin-bottom: 30px;
+				
+			}
+			
+			.full-name {
+				text-overflow:ellipsis;
+			}
+			
+			#enCours .item {
+				padding: 20px 60px 20px 60px;
+			}
+		</style>
+	</head>
+	<body>
+			<!-- ko ifnot: authenticated -->
+			<div id="loggedout">
+				<a id="connectLink" href="#" data-bind="click: login">Connect To Trello</a>
+			</div>
+			<!-- /ko -->
+
+			<!-- ko if: authenticated -->
+			<div id="loggedin">
+				<div id="enCours" class="carousel slide" data-interval="5000" data-bind="with: enCoursList">
+					  <div class="carousel-inner" data-bind="foreach: cards">
+						<div data-bind="css: {item: true, active: active}">
+							<div class="cardName" data-bind="text: name"></div>
+							<ul class="members thumbnails" data-bind="foreach: members">
+								<li>
+									<div class="thumbnail">
+										<!-- ko if:hasAvatar -->
+											<img class="img-polaroid" data-bind="attr: { src : membersImg }">
+										<!-- /ko -->
+										<!-- ko ifnot:hasAvatar -->
+											<div class="initials" data-bind="text:initials"></div>
+										<!-- /ko -->
+										<h3 class="full-name" data-bind="text:fullName"></h3>
+									</div>
+								</li>
+							</ul>
+							<h3 data-bind="text:dueDate()"></h3>
+						</div>
+					  </div>
+					  <!-- Carousel nav -->
+					  <!-- ko ifnot: cardsLoading -->
+					  <a class="carousel-control left" href="#enCours" data-slide="prev">&lsaquo;</a>
+					  <a class="carousel-control right" href="#enCours" data-slide="next">&rsaquo;</a>
+					  <!-- /ko -->
+				 </div>
+			</div>
+			<!-- /ko -->
+		<script type="text/javascript" src="markdown/Markdown.Converter.js"></script>
+		<script type="text/javascript" src="markdown/Markdown.Sanitizer.js"></script>
+		<script type="text/javascript" src="markdown/Markdown.Editor.js"></script>
+		<script type="text/javascript" src="jquery-2.0.1.js"></script>
+		<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+		<script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+		<script src="https://api.trello.com/1/client.js?key=fa55c46b1c5d9fc3f0aaee5b80a0177f"></script>
+		<script src="app.js"></script>
+	</body>
+</html>

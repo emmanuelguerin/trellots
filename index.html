@@ -5,6 +5,9 @@
 		<meta charset='utf-8'>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<script type="text/javascript" src="markdown/Markdown.Converter.js"></script>
+		<script type="text/javascript" src="markdown/Markdown.Sanitizer.js"></script>
+		<script type="text/javascript" src="markdown/Markdown.Editor.js"></script>
 		<link href="style.css" rel="stylesheet" media="screen">
 	</head>
 	<body class="loading">
@@ -18,10 +21,14 @@
 			<!-- ko if: authenticated -->
 			<div id="loggedin">
 				<div id="header">
-					Logged in to as <span data-bind="text:user"></span> 
+					Logged in to Trello as <span data-bind="text:user"></span> 
 					<a id="disconnect" href="#" data-bind="click: logout">Log Out</a>
 				</div>
 				
+				
+				<div data-bind="with: enCoursList">
+					<h3 data-bind="text:name"></h3>
+				</div>
 				<div id="output">
 					<select id="boards" data-bind="options: boards, optionsText: 'name', value: selectedBoard, optionsCaption: 'Choisir un board...'">
 					</select> 
@@ -58,7 +65,8 @@
 								<!-- ko foreach: cards -->
 								<tr>
 									<td></td>
-									<td><span data-bind="text:name"></span></td>
+									<td><span data-bind="text:name"></span>
+									<div data-bind="html:description()"></div></td>
 									<td><span data-bind="text:getCost()"></span></td>
 									<td></td>
 									<td><span data-bind="text:dueDate()"></span></td>

@@ -1,5 +1,7 @@
 var cardModel = function (card) {
+	console.log(card);
 	var self = jQuery.extend(this, card);
+	self.active = ko.observable(false);
 	self.getCost = function() {
 		if (self.labels.length == 0) {
 			return 0;
@@ -16,6 +18,20 @@ var cardModel = function (card) {
 		}
 		return new Date(self.due).toDateString();
 	};
+	self.description = function() {
+		var converter = new Markdown.Converter();
+		return converter.makeHtml(self.desc);
+	};
+	
+	$.each(self.members, function(index, elt) {
+		
+		if (elt.avatarHash) {
+			elt.hasAvatar = true;
+			elt.membersImg = "https://trello-avatars.s3.amazonaws.com/" + elt.avatarHash + "/170.png";
+		} else {
+			elt.hasAvatar = false;
+		}
+	});
 };
 
 var listModel = function (list) {
@@ -30,12 +46,22 @@ var listModel = function (list) {
 		$.each(self.cards(), function (i, card) { result = result + card.getCost(); });
 		return result;
 	});
-	Trello.get("lists/" + self.id + "/cards", function (cards) {
-		$.each(cards, function (i, card) {
-			self.cards.push(new cardModel(card));
+	self.reload = function() {
+		self.cardsLoading(true);
+		Trello.get("lists/" + self.id + "/cards?members=true", function (cards) {
+			self.cards.removeAll();
+			$.each(cards, function (i, card) {
+				var cm = new cardModel(card);
+				if (i == 0) {
+					cm.active(true);
+				}
+				self.cards.push(cm);
+			});
+			self.cardsLoading(false);
 		});
-		self.cardsLoading(false);
-	});
+	};
+	
+	self.reload();
 };
 
 var boardModel = function (board) {
@@ -62,6 +88,12 @@ var viewModel = function() {
 			self.boards($.map(boards, function(board) { return new boardModel(board);}));
 		});
 	};
+	self.enCoursList = ko.observable();
+	self.loadEnCours = function() {
+		Trello.get("lists/5166751feedf1d4b4f001b6d", function (enCours) {
+			self.enCoursList(new listModel(enCours));
+		});
+	};
 	self.selectedBoard = ko.observable() ;
 	
 	self.authenticated = ko.observable(false);
@@ -73,6 +105,7 @@ var viewModel = function() {
 			self.user(member.username);
 		});
 		self.loadBoards();
+		self.loadEnCours();
 	};
 	
 	self.login = function () {
@@ -94,7 +127,6 @@ var viewModel = function() {
 			newBoard.updateLists();
 		}
 	});
-	
 };
 
 
@@ -102,6 +134,7 @@ $(document).ready(function() {
 	var model = new viewModel();
 	ko.applyBindings(model);
 	$("body").removeClass("loading");
+	/*$(".carousel").carousel();*/
 	Trello.authorize({
 		interactive:false,
 		success: model.onAuthorize
