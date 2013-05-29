@@ -1,46 +1,115 @@
+var memberModel = function (member) {
+	var self = this;
+	ko.mapping.fromJS(member, {}, self);
+	self.membersImg = ko.computed(function() {
+		if (self.avatarHash()) {
+			return "https://trello-avatars.s3.amazonaws.com/" + self.avatarHash() + "/170.png";
+		}
+		return "";
+	});
+	
+	self.firstName = ko.computed(function() {
+		return self.fullName().split(" ")[0];
+	});
+	
+	self.hasAvatar = ko.computed(function() {
+		return self.avatarHash() != null;
+	});
+};
+
 var cardModel = function (card) {
-	console.log(card);
-	var self = jQuery.extend(this, card);
+	var self = this;
+	ko.mapping.fromJS(card, {
+		'members' : {
+			key: function (data) {
+				return ko.utils.unwrapObservable(data.id);
+			},
+			create: function(options)  {
+				return new memberModel(options.data);
+			}
+		}
+	}, self);
 	self.active = ko.observable(false);
-	self.getCost = function() {
-		if (self.labels.length == 0) {
+	
+	self.getCost = ko.computed(function() {
+		var re = /\((\d+)\)$/;
+		var cost = re.exec(self.name());
+		if (cost) {
+			return parseInt(cost[1]);
+		}
+		if (self.labels().length == 0) {
 			return 0;
 		}
-		var label = self.labels[0].name;
+		var label = self.labels()[0].name;
 		if (!$.isNumeric(label)) {
 			return 0;
 		}
 		return parseInt(label);
-	};
-	self.dueDate = function() {
-		if (!self.due) {
-			return "";
+	});
+	
+	self.templateName = function() {
+		if (self.name().match(/^http/))
+		{
+			return 'pageweb-template';
+		} else {
+			return 'backlog-template';
 		}
-		return new Date(self.due).toDateString();
-	};
-	self.description = function() {
-		var converter = new Markdown.Converter();
-		return converter.makeHtml(self.desc);
 	};
 	
-	$.each(self.members, function(index, elt) {
-		
-		if (elt.avatarHash) {
-			elt.hasAvatar = true;
-			elt.membersImg = "https://trello-avatars.s3.amazonaws.com/" + elt.avatarHash + "/170.png";
-		} else {
-			elt.hasAvatar = false;
+	self.dueDate = ko.computed(function() {
+		if (!self.due()) {
+			return "";
 		}
+		return new Date(self.due()).toDateString();
+	});
+	
+	self.description = ko.computed(function() {
+		var converter = new Markdown.Converter();
+		return converter.makeHtml(self.desc());
 	});
 };
 
-var listModel = function (list) {
-	var self = jQuery.extend(this,list);
+var cardList = function (cards) {
+	var self = this;
 	self.cards = ko.observableArray();
+	self.update = function (cards) {
+		ko.mapping.fromJS(cards, {
+			key: function (data) {
+				return ko.utils.unwrapObservable(data.id);
+			},
+			create: function(options)  {
+				return new cardModel(options.data);
+			}
+		}, self.cards);
+	};
+	
+	if (cards) {
+		self.update(cards);
+	}
+};
+
+var listModel = function (list) {
+	var self = this;
+	var mapping = {
+		'cards' : {
+			key: function (data) {
+				return ko.utils.unwrapObservable(data.id);
+			},
+			create: function(options)  {
+				return new cardModel(options.data);
+			}
+		}
+	};
+	ko.mapping.fromJS(list, mapping, self);
+	
+	if (!self.cards) {
+		self.cards = ko.observableArray();
+	}
+	
 	self.nbCards = ko.computed(function () {
 		return self.cards().length;
 	});
-	self.cardsLoading = ko.observable(true);
+	self.cardsLoading = ko.observable(false);
 	self.total = ko.computed(function() {
 		var result = 0;
 		$.each(self.cards(), function (i, card) { result = result + card.getCost(); });
@@ -48,34 +117,36 @@ var listModel = function (list) {
 	});
 	self.reload = function() {
 		self.cardsLoading(true);
-		Trello.get("lists/" + self.id + "/cards?members=true", function (cards) {
-			self.cards.removeAll();
-			$.each(cards, function (i, card) {
-				var cm = new cardModel(card);
-				if (i == 0) {
-					cm.active(true);
-				}
-				self.cards.push(cm);
-			});
+		Trello.get("lists/" + self.id() + "/cards?members=true", function (cards) {
+			ko.mapping.fromJS(cards, mapping.cards, self.cards);
 			self.cardsLoading(false);
 		});
 	};
 	
+	
 	self.reload();
 };
 
+
+
 var boardModel = function (board) {
-	var self = jQuery.extend(this, board);
+	var self = this;
+	ko.mapping.fromJS(board, {}, self);
 	self.boardLists = ko.observableArray();
 	self.loading = ko.observable(false);
 	self.updateLists = function() {
 		self.loading(true);
 		self.boardLists.removeAll();
-		Trello.get("boards/" + self.id + "/lists", function (lists) {
+		Trello.get("boards/" + self.id() + "/lists", function (lists) {
+			ko.mapping.fromJS(lists, {
+				key: function (data) {
+					return ko.utils.unwrapObservable(data.id);
+				},
+				create: function(options)  {
+					return new listModel(options.data);
+				}
+			}, self.boardLists);
 			self.loading(false);
-			$.each(lists, function (i, list) {
-				self.boardLists.push(new listModel(list));
-			});
 		});
 	};
 };
@@ -85,14 +156,41 @@ var viewModel = function() {
 	self.boards = ko.observableArray();
 	self.loadBoards = function() {
 		Trello.get("organizations/talentsoft/boards", function(boards) {
-			self.boards($.map(boards, function(board) { return new boardModel(board);}));
+			ko.mapping.fromJS(boards, {
+				key: function (data) {
+					return ko.utils.unwrapObservable(data.id);
+				},
+				create: function(options)  {
+					return new boardModel(options.data);
+				}
+			}, self.boards);
 		});
 	};
-	self.enCoursList = ko.observable();
+	self.enCoursLists = ko.observableArray();
+	var lists = ["51a47b4b5436a5ee3e009048","5166751feedf1d4b4f001b6d"];
+	self.loading = false;
 	self.loadEnCours = function() {
-		Trello.get("lists/5166751feedf1d4b4f001b6d", function (enCours) {
-			self.enCoursList(new listModel(enCours));
+		if (self.loading) return;
+		self.loading = true;
+		console.log("load");
+		Trello.get("lists/5166751feedf1d4b4f001b6d", function (list) {
+			self.enCoursLists.push(new listModel(list));
+			Trello.get("lists/51a47b4b5436a5ee3e009048", function (list) {
+				self.enCoursLists.push(new listModel(list));
+				self.loading = false;
+			});
 		});
+	};
+	
+	self.updateLists = function() {
+		if (self.loading) return;
+		console.log("update");
+		var lists = self.enCoursLists();
+		for (var i in lists)
+		{
+			lists[i].reload();
+		}
+		self.loading = false;
 	};
 	self.selectedBoard = ko.observable() ;
 	
@@ -127,14 +225,14 @@ var viewModel = function() {
 			newBoard.updateLists();
 		}
 	});
+	setInterval(self.updateLists, 10000);
 };
 
 
 $(document).ready(function() {
 	var model = new viewModel();
 	ko.applyBindings(model);
-	$("body").removeClass("loading");
-	/*$(".carousel").carousel();*/
+	$("body").removeClass("loading");//.fitText(8);
 	Trello.authorize({
 		interactive:false,
 		success: model.onAuthorize

@@ -26,9 +26,6 @@
 				</div>
 				
 				
-				<div data-bind="with: enCoursList">
-					<h3 data-bind="text:name"></h3>
-				</div>
 				<div id="output">
 					<select id="boards" data-bind="options: boards, optionsText: 'name', value: selectedBoard, optionsCaption: 'Choisir un board...'">
 					</select> 
@@ -66,10 +63,10 @@
 								<tr>
 									<td></td>
 									<td><span data-bind="text:name"></span>
-									<div data-bind="html:description()"></div></td>
-									<td><span data-bind="text:getCost()"></span></td>
+									<div data-bind="html:description"></div></td>
+									<td><span data-bind="text:getCost"></span></td>
 									<td></td>
-									<td><span data-bind="text:dueDate()"></span></td>
+									<td><span data-bind="text:dueDate"></span></td>
 								</tr>
 								<!-- /ko -->
 							<!-- /ko -->
@@ -87,6 +84,7 @@
 		<script src="bootstrap/js/bootstrap.min.js"></script>
 		<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
 		<script src="https://api.trello.com/1/client.js?key=fa55c46b1c5d9fc3f0aaee5b80a0177f"></script>
+		<script src="knockout.mapping.js"></script>
 		<script src="app.js"></script>
 	</body>
 </html>
