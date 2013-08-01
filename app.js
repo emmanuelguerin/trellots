@@ -30,6 +30,10 @@ var cardModel = function (card) {
 		}
 	}, self);
 	self.active = ko.observable(false);
+	self.opened = ko.observable(false);
+	self.open = function() {
+		self.opened(!self.opened());
+	};
 	
 	self.getCost = ko.computed(function() {
 		var re = /\((\d+)\)$/;
@@ -102,6 +106,8 @@ var listModel = function (list) {
 	};
 	ko.mapping.fromJS(list, mapping, self);
 	
+	self.opened = ko.observable(false);
+	
 	if (!self.cards) {
 		self.cards = ko.observableArray();
 	}
@@ -123,7 +129,9 @@ var listModel = function (list) {
 		});
 	};
 	
-	
+	self.open = function() {
+		self.opened(!self.opened());
+	};
 	self.reload();
 };
 
@@ -155,7 +163,7 @@ var viewModel = function() {
 	var self = this;
 	self.boards = ko.observableArray();
 	self.loadBoards = function() {
-		Trello.get("organizations/talentsoft/boards", function(boards) {
+		Trello.get("organizations/rdmanu/boards", function(boards) {
 			ko.mapping.fromJS(boards, {
 				key: function (data) {
 					return ko.utils.unwrapObservable(data.id);

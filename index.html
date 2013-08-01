@@ -50,7 +50,7 @@
 					<!-- ko ifnot: loading -->
 						<!-- ko foreach: boardLists -->
 							<tbody>
-								<tr>
+								<tr data-bind="click:open">
 									<th colspan="2"><span data-bind="text:name"></span></th>
 									<th><span data-bind="text:total"></span></th>
 									<th colspan="2"><span data-bind="text:nbCards"></span> carte(s)</th>
@@ -59,16 +59,21 @@
 								<tr><td colspan="5">Loading...</td></tr>
 							<!-- /ko -->
 							<!-- ko ifnot: cardsLoading -->
+							<!-- ko if: opened -->
 								<!-- ko foreach: cards -->
 								<tr>
 									<td></td>
-									<td><span data-bind="text:name"></span>
-									<div data-bind="html:description"></div></td>
+									<td><span data-bind="text:name, click:open"></span>
+									<!-- ko if: opened -->
+									<div data-bind="html:description"></div>
+									<!-- /ko -->
+									</td>
 									<td><span data-bind="text:getCost"></span></td>
 									<td></td>
 									<td><span data-bind="text:dueDate"></span></td>
 								</tr>
 								<!-- /ko -->
+							<!-- /ko -->
 							<!-- /ko -->
 							</tbody>
 						<!-- /ko -->
