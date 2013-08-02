@@ -36,19 +36,7 @@ var cardModel = function (card) {
 	};
 	
 	self.getCost = ko.computed(function() {
-		var re = /\((\d+)\)$/;
-		var cost = re.exec(self.name());
-		if (cost) {
-			return parseInt(cost[1]);
-		}
-		if (self.labels().length == 0) {
-			return 0;
-		}
-		var label = self.labels()[0].name;
-		if (!$.isNumeric(label)) {
-			return 0;
-		}
-		return parseInt(label);
+		return getCardCost(self.name());
 	});
 	
 	self.templateName = function() {
@@ -112,6 +100,10 @@ var listModel = function (list) {
 		self.cards = ko.observableArray();
 	}
 	
+	self.cleanName = ko.computed(function () {
+		return getSprint({}, {name: self.name()});
+	});
+	
 	self.nbCards = ko.computed(function () {
 		return self.cards().length;
 	});
@@ -157,10 +149,19 @@ var boardModel = function (board) {
 			self.loading(false);
 		});
 	};
+	
+	self.total = ko.computed(function() {
+		var result = 0;
+		$.each(self.boardLists(), function (i, list) {
+			result += list.total();
+		});
+		return result;
+	});
 };
 
 var viewModel = function() {
 	var self = this;
+	trelloAuth.call(this);
 	self.boards = ko.observableArray();
 	self.loadBoards = function() {
 		Trello.get("organizations/rdmanu/boards", function(boards) {
@@ -202,38 +203,21 @@ var viewModel = function() {
 	};
 	self.selectedBoard = ko.observable() ;
 	
-	self.authenticated = ko.observable(false);
-	self.user = ko.observable();
-
-	self.onAuthorize = function() {
-		self.authenticated(Trello.authorized());
-		Trello.get("member/me", function (member) {
-			self.user(member.username);
-		});
-		self.loadBoards();
-		self.loadEnCours();
-	};
-	
-	self.login = function () {
-		Trello.authorize({
-			type: "popup",
-			success: self.onAuthorize
-		});
-	};
-
-	self.logout = function() {
-		self.selectedBoard(undefined);
-		self.boards.removeAll();
-		Trello.deauthorize();
-		self.authenticated(false);
-	};
+	self.authenticated.subscribe(function(authorized) {
+		if (authorized) {
+			self.loadBoards();
+			self.loadEnCours();
+		} else {
+			self.selectedBoard(undefined);
+			self.boards.removeAll();
+		}
+	});
 	
 	self.selectedBoard.subscribe(function(newBoard) {
 		if (newBoard != undefined && newBoard.boardLists().length == 0) {
 			newBoard.updateLists();
 		}
 	});
-	setInterval(self.updateLists, 10000);
 };
 
 

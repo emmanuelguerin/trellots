@@ -21,3 +21,11 @@
 .loading *{
 	display: none;
 }
+
+.nbcards {
+	color: blue;
+}
+
+.cost {
+	color: red;
+}

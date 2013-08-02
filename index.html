@@ -35,8 +35,8 @@
 					<thead>
 						<tr>
 							<th colspan="2">Liste / Carte</th>
-							<th>Coût</th>
-							<th>#</th>
+							<th class="cost">Coût</th>
+							<th class="nbcards">#</th>
 							<th>Fin</th>
 						</tr>
 					</thead>
@@ -48,12 +48,12 @@
 						</tbody>
 					<!-- /ko -->
 					<!-- ko ifnot: loading -->
+						<tbody>
 						<!-- ko foreach: boardLists -->
-							<tbody>
 								<tr data-bind="click:open">
-									<th colspan="2"><span data-bind="text:name"></span></th>
-									<th><span data-bind="text:total"></span></th>
-									<th colspan="2"><span data-bind="text:nbCards"></span> carte(s)</th>
+									<th colspan="2"><span data-bind="text:cleanName"></span></th>
+									<th><span class="cost" data-bind="text:total"></span></th>
+									<th colspan="2"><span class="nbcards" data-bind="text:nbCards"></span></th>
 								</tr>
 							<!-- ko if: cardsLoading -->
 								<tr><td colspan="5">Loading...</td></tr>
@@ -68,15 +68,19 @@
 									<div data-bind="html:description"></div>
 									<!-- /ko -->
 									</td>
-									<td><span data-bind="text:getCost"></span></td>
+									<td><span class="cost" data-bind="text:getCost"></span></td>
 									<td></td>
 									<td><span data-bind="text:dueDate"></span></td>
 								</tr>
 								<!-- /ko -->
 							<!-- /ko -->
 							<!-- /ko -->
-							</tbody>
 						<!-- /ko -->
+						<tr><th colspan="2"></th>
+						<th><span class="cost" data-bind="text:total"></span></th>
+						<th colspan="2"></th>
+						</tr> 
+						</tbody>
 					<!-- /ko -->
 					</table>
 					<!-- /ko -->
@@ -90,6 +94,7 @@
 		<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
 		<script src="https://api.trello.com/1/client.js?key=fa55c46b1c5d9fc3f0aaee5b80a0177f"></script>
 		<script src="knockout.mapping.js"></script>
+		<script src="trello.js"></script>
 		<script src="app.js"></script>
 	</body>
 </html>
