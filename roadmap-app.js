@@ -1,14 +1,26 @@
+var fillObject = function (arr, obj) {
+	$.each(arr, function (i, elt) {
+		obj[elt.id] = elt;
+	});
+};
+
 var viewModel = function() {
 	var self = this;
 	trelloAuth.call(self);
 	
+	self.boards = {};
 	self.lists = {};
 	self.cards = ko.observableArray();
 	self.onLogin(function () {
-		Trello.get("boards/0dMWr9FO/lists", function (lists) {
-			$.each(lists, function (i, list) {
-				self.lists[list.id] = list;
+		Trello.get("member/me/boards?filter=organization&lists=open", function (boards) {
+			fillObject(boards, self.boards);
+			$.each(boards, function (i, board) {
+				fillObject(board.lists, self.lists);
+				$.each(board.lists, function (i, list) {
+					list.idBoard = board.id;
+				});
 			});
+			console.log(self.boards);
 			console.log(self.lists);
 			Trello.get("boards/0dMWr9FO/cards?fields=name,idList,url", function (cards) {
 				self.cards($.map(cards, function (card) { 
