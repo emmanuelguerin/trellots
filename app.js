@@ -224,7 +224,7 @@ var viewModel = function() {
 $(document).ready(function() {
 	var model = new viewModel();
 	ko.applyBindings(model);
-	$("body").removeClass("loading");//.fitText(8);
+	$("body").removeClass("loading");
 	Trello.authorize({
 		interactive:false,
 		success: model.onAuthorize
