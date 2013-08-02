@@ -10,7 +10,7 @@
 		<script type="text/javascript" src="markdown/Markdown.Editor.js"></script>
 		<link href="style.css" rel="stylesheet" media="screen">
 	</head>
-	<body class="loading">
+	<body>
 		<div class="navbar">
 			<div class="navbar-inner">
 				<ul class="nav">
@@ -19,7 +19,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="container">
+		<div class="container-fluid loading">
 			<!-- ko ifnot: authenticated -->
 			<div id="loggedout">
 				<a id="connectLink" href="#" data-bind="click: login">Connect To Trello</a>
