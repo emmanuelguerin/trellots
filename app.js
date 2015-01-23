@@ -1,3 +1,4 @@
+// Small comment
 var memberModel = function (member) {
 	var self = this;
 	ko.mapping.fromJS(member, {}, self);
