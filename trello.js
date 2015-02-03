@@ -7,7 +7,7 @@ var getCardCost = function (cardName) {
 		return 0;
 };
 
-// small comment
+// small comment + other
 var getCardPid = function (cardName) {
 	var re = /(P\d+)/;
 	var pid = re.exec(cardName);
